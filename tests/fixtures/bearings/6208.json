@@ -1,0 +1,82 @@
+{
+  "partNumber": {
+    "value": "6208",
+    "evidence": {
+      "documentId": "deep-groove-ball-bearing-datasheet",
+      "page": 1,
+      "text": "Medium (6208): 40 mm 80 mm 18 mm"
+    }
+  },
+  "manufacturer": {
+    "value": null,
+    "evidence": null
+  },
+  "bearingType": {
+    "value": "Deep Groove Ball Bearing",
+    "evidence": {
+      "documentId": "deep-groove-ball-bearing-datasheet",
+      "page": 1,
+      "text": "Deep Groove Ball Bearing"
+    }
+  },
+  "innerDiameter": {
+    "value": 40,
+    "evidence": {
+      "documentId": "deep-groove-ball-bearing-datasheet",
+      "page": 1,
+      "text": "Medium (6208): 40 mm 80 mm 18 mm"
+    }
+  },
+  "outerDiameter": {
+    "value": 80,
+    "evidence": {
+      "documentId": "deep-groove-ball-bearing-datasheet",
+      "page": 1,
+      "text": "Medium (6208): 40 mm 80 mm 18 mm"
+    }
+  },
+  "width": {
+    "value": 18,
+    "evidence": {
+      "documentId": "deep-groove-ball-bearing-datasheet",
+      "page": 1,
+      "text": "Medium (6208): 40 mm 80 mm 18 mm"
+    }
+  },
+  "material": {
+    "value": null,
+    "evidence": null
+  },
+  "dynamicLoadRating": {
+    "value": null,
+    "evidence": null
+  },
+  "staticLoadRating": {
+    "value": null,
+    "evidence": null
+  },
+  "maximumSpeed": {
+    "value": null,
+    "evidence": null
+  },
+  "temperature": {
+    "value": null,
+    "evidence": null
+  },
+  "clearance": {
+    "value": null,
+    "evidence": null
+  },
+  "sealType": {
+    "value": null,
+    "evidence": null
+  },
+  "standards": {
+    "value": null,
+    "evidence": null
+  },
+  "certifications": {
+    "value": null,
+    "evidence": null
+  }
+}
