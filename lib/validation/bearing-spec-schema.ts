@@ -11,22 +11,26 @@ const field = <T extends z.ZodTypeAny>(schema: T) =>
     evidence: EvidenceSchema.nullable(),
   });
 
-export const BearingSpecSchema = z.object({
-  partNumber: field(z.string()),
-  manufacturer: field(z.string()),
-  bearingType: field(z.string()),
-  innerDiameter: field(z.number()),
-  outerDiameter: field(z.number()),
-  width: field(z.number()),
-  material: field(z.string()),
-  dynamicLoadRating: field(z.number()),
-  staticLoadRating: field(z.number()),
-  maximumSpeed: field(z.number()),
-  temperature: field(z.number()),
-  clearance: field(z.string()),
-  sealType: field(z.string()),
-  standards: field(z.array(z.string())),
-  certifications: field(z.array(z.string())),
+const numericField = field(z.union([z.number(), z.string()]));
+const stringField = field(z.union([z.string(), z.number()]).transform(v => String(v)));
+const arrayField = field(z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]));
+
+export const RawBearingSpecSchema = z.object({
+  partNumber: stringField,
+  manufacturer: stringField,
+  bearingType: stringField,
+  innerDiameter: numericField,
+  outerDiameter: numericField,
+  width: numericField,
+  material: stringField,
+  dynamicLoadRating: numericField,
+  staticLoadRating: numericField,
+  maximumSpeed: numericField,
+  temperature: numericField,
+  clearance: stringField,
+  sealType: stringField,
+  standards: arrayField,
+  certifications: arrayField,
 });
 
-export type ValidatedBearingSpec = z.infer<typeof BearingSpecSchema>;
+export type ValidatedBearingSpec = z.infer<typeof RawBearingSpecSchema>;
