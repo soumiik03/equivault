@@ -20,14 +20,14 @@ SCHEMA:
   "partNumber":        { "value": string | null, "evidence": { "page": number | null, "text": string | null } | null },
   "manufacturer":      { "value": string | null, "evidence": ... },
   "bearingType":       { "value": string | null, "evidence": ... },
-  "innerDiameter":     { "value": number | null, "evidence": ... },  // mm
-  "outerDiameter":     { "value": number | null, "evidence": ... },  // mm
-  "width":             { "value": number | null, "evidence": ... },  // mm
+  "innerDiameter":     { "value": number | string | null, "evidence": ... },
+  "outerDiameter":     { "value": number | string | null, "evidence": ... },
+  "width":             { "value": number | string | null, "evidence": ... },
   "material":          { "value": string | null, "evidence": ... },
-  "dynamicLoadRating": { "value": number | null, "evidence": ... },  // kN
-  "staticLoadRating":  { "value": number | null, "evidence": ... },  // kN
-  "maximumSpeed":      { "value": number | null, "evidence": ... },  // RPM
-  "temperature":       { "value": number | null, "evidence": ... },  // °C
+  "dynamicLoadRating": { "value": number | string | null, "evidence": ... },
+  "staticLoadRating":  { "value": number | string | null, "evidence": ... },
+  "maximumSpeed":      { "value": number | string | null, "evidence": ... },
+  "temperature":       { "value": number | string | null, "evidence": ... },
   "clearance":         { "value": string | null, "evidence": ... },
   "sealType":          { "value": string | null, "evidence": ... },
   "standards":         { "value": string[] | null, "evidence": ... },

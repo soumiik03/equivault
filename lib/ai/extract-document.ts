@@ -4,8 +4,9 @@ import {
   GEMINI_FALLBACK_MODEL,
 } from "@/lib/gemini";
 import { EXTRACTION_SYSTEM_PROMPT } from "@/lib/ai/extraction-prompt";
-import { BearingSpecSchema } from "@/lib/validation/bearing-spec-schema";
+import { RawBearingSpecSchema } from "@/lib/validation/bearing-spec-schema";
 import type { BearingSpec } from "@/lib/bearings/types";
+import { normalizeBearingSpec } from "@/lib/normalization";
 
 export type ExtractionResult = {
   spec: BearingSpec;
@@ -62,11 +63,12 @@ function parseAndValidate(raw: string): BearingSpec {
     }
   }
 
-  const result = BearingSpecSchema.safeParse(parsed);
+  const result = RawBearingSpecSchema.safeParse(parsed);
   if (!result.success) {
     throw new Error(`Validation failed: ${result.error.message}`);
   }
-  return result.data as BearingSpec;
+  
+  return normalizeBearingSpec(result.data);
 }
 
 export async function extractBearingSpec(
