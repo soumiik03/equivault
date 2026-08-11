@@ -1,15 +1,20 @@
-import { describe, it } from "node:test";
+import { describe, it, beforeEach } from "node:test";
 import * as assert from "node:assert/strict";
 import { evaluateCompatibility } from "@/lib/rules/engine";
 import type { BearingSpec } from "@/lib/bearings/types";
 import rawFixture6000 from "./fixtures/bearings/6000.json";
 import rawFixture6208 from "./fixtures/bearings/6208.json";
+import { _addTestMaterialEquivalence, _addTestStandardEquivalence, _clearTestEquivalences } from "@/lib/rules/equivalence-tables";
 
 // We know the fixtures conform to BearingSpec based on validate-fixtures
 const fixture6000 = rawFixture6000 as BearingSpec;
 const fixture6208 = rawFixture6208 as BearingSpec;
 
 describe("compatibility rule engine", () => {
+  beforeEach(() => {
+    _clearTestEquivalences();
+  });
+
   it("1. identical bearing -> PASS", () => {
     const fullBearing: BearingSpec = {
       ...fixture6000,
@@ -90,27 +95,34 @@ describe("compatibility rule engine", () => {
     assert.equal(result?.severity, "UNVERIFIED");
   });
 
-  it("11. identical material -> PASS", () => {
+  it("11. exact material match -> PASS", () => {
     const original: BearingSpec = { ...fixture6000, material: { value: "Chrome Steel", evidence: null } };
     const results = evaluateCompatibility(original, original);
     const result = results.find((r) => r.ruleId === "material_match");
     assert.equal(result?.severity, "PASS");
   });
 
-  it("12. approved/known material equivalence -> according to authoritative status (WARNING for provisional)", () => {
+  it("12. approved material equivalence -> PASS (Chapter 6 provenance)", () => {
+    _addTestMaterialEquivalence({
+      canonical: "Chrome Steel",
+      approvedEquivalents: ["AISI 52100"],
+      category: "material",
+      source: "ISO 683-17:2014",
+      note: "Standard bearing steel"
+    });
     const original: BearingSpec = { ...fixture6000, material: { value: "Chrome Steel", evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, material: { value: "AISI 52100", evidence: null } };
     const results = evaluateCompatibility(original, replacement);
     const result = results.find((r) => r.ruleId === "material_match");
-    assert.equal(result?.severity, "WARNING");
+    assert.equal(result?.severity, "PASS");
   });
 
-  it("13. different material -> WARNING", () => {
+  it("13. unknown material mapping -> UNVERIFIED", () => {
     const original: BearingSpec = { ...fixture6000, material: { value: "Chrome Steel", evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, material: { value: "Ceramic", evidence: null } };
     const results = evaluateCompatibility(original, replacement);
     const result = results.find((r) => r.ruleId === "material_match");
-    assert.equal(result?.severity, "WARNING");
+    assert.equal(result?.severity, "UNVERIFIED");
   });
 
   it("14. missing material -> UNVERIFIED", () => {
@@ -121,30 +133,30 @@ describe("compatibility rule engine", () => {
     assert.equal(result?.severity, "UNVERIFIED");
   });
 
-  it("15. matching standards -> PASS", () => {
-    const original: BearingSpec = { ...fixture6000, standards: { value: ["ISO 15"], evidence: null } };
-    const results = evaluateCompatibility(original, original);
-    const result = results.find((r) => r.ruleId === "standards_match");
-    assert.equal(result?.severity, "PASS");
-  });
-
-  it("16. known standards equivalence -> according to authoritative status (WARNING for provisional)", () => {
+  it("15. approved standard equivalence -> PASS", () => {
+    _addTestStandardEquivalence({
+      canonical: "ISO 15",
+      approvedEquivalents: ["DIN 625"],
+      category: "standards",
+      source: "SKF General Catalogue",
+      note: "Boundary dimensions only"
+    });
     const original: BearingSpec = { ...fixture6000, standards: { value: ["ISO 15"], evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, standards: { value: ["DIN 625"], evidence: null } };
     const results = evaluateCompatibility(original, replacement);
     const result = results.find((r) => r.ruleId === "standards_match");
-    assert.equal(result?.severity, "WARNING");
+    assert.equal(result?.severity, "PASS");
   });
 
-  it("17. different standards -> WARNING", () => {
+  it("16. unknown standard mapping -> UNVERIFIED", () => {
     const original: BearingSpec = { ...fixture6000, standards: { value: ["ISO 15"], evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, standards: { value: ["ANSI"], evidence: null } };
     const results = evaluateCompatibility(original, replacement);
     const result = results.find((r) => r.ruleId === "standards_match");
-    assert.equal(result?.severity, "WARNING");
+    assert.equal(result?.severity, "UNVERIFIED");
   });
 
-  it("18. missing standards -> UNVERIFIED", () => {
+  it("17. missing standards -> UNVERIFIED", () => {
     const original: BearingSpec = { ...fixture6000, standards: { value: ["ISO 15"], evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, standards: { value: [], evidence: null } };
     const results = evaluateCompatibility(original, replacement);
@@ -152,12 +164,30 @@ describe("compatibility rule engine", () => {
     assert.equal(result?.severity, "UNVERIFIED");
   });
 
-  it("19. RuleResult contains a useful explanation", () => {
-    const original: BearingSpec = { ...fixture6000, dynamicLoadRating: { value: 10, evidence: null } };
-    const replacement: BearingSpec = { ...fixture6000, dynamicLoadRating: { value: 9, evidence: null } };
+  it("18. approved equivalence contains provenance and it appears in RuleResult explanation", () => {
+    _addTestMaterialEquivalence({
+      canonical: "Chrome Steel",
+      approvedEquivalents: ["AISI 52100"],
+      category: "material",
+      source: "ISO 683-17:2014",
+      note: "Standard bearing steel"
+    });
+    const original: BearingSpec = { ...fixture6000, material: { value: "Chrome Steel", evidence: null } };
+    const replacement: BearingSpec = { ...fixture6000, material: { value: "AISI 52100", evidence: null } };
     const results = evaluateCompatibility(original, replacement);
-    const result = results.find((r) => r.ruleId === "perf_dynamic_load");
-    assert.ok(result?.reason.includes("below original requirement"));
+    const result = results.find((r) => r.ruleId === "material_match");
+    assert.ok(result?.reason.includes("ISO 683-17:2014"));
+    assert.ok(result?.reason.includes("Standard bearing steel"));
+  });
+
+  it("19. no unapproved equivalence produces PASS", () => {
+    // Tests that an unregistered equivalence defaults to UNVERIFIED
+    const original: BearingSpec = { ...fixture6000, material: { value: "Stainless Steel 316", evidence: null } };
+    const replacement: BearingSpec = { ...fixture6000, material: { value: "SS316", evidence: null } };
+    const results = evaluateCompatibility(original, replacement);
+    const result = results.find((r) => r.ruleId === "material_match");
+    assert.notEqual(result?.severity, "PASS");
+    assert.equal(result?.severity, "UNVERIFIED");
   });
 
   it("20. correct severity", () => {

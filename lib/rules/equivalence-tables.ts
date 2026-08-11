@@ -1,58 +1,58 @@
-// PLACEHOLDER — Ch 6 replaces this with a provenance-backed table (6.3: source/reference per entry).
-// Keep the function signatures stable so material-rules.ts / standards-rules.ts never need to change.
-
-interface EquivalenceEntry {
+export interface ProvenanceEquivalence {
   canonical: string;
-  approvedEquivalents: string[]; // exact strings considered interchangeable
-  source?: string; // Ch 6.3 — where this equivalence claim comes from
+  approvedEquivalents: string[];
+  category: "material" | "standards" | "dimension" | "performance";
+  source: string; // Must be a verified, authoritative reference
+  note?: string;  // Caveats, e.g., "Only applies to boundary dimensions"
 }
 
-const APPROVED_MATERIALS: EquivalenceEntry[] = [
-  {
-    canonical: "Chrome Steel",
-    approvedEquivalents: ["AISI 52100", "SUJ2", "100Cr6"],
-    source: "TODO: Ch 6 — add real provenance",
-  },
-  {
-    canonical: "Stainless Steel 316",
-    approvedEquivalents: ["SS316", "AISI 316", "X5CrNiMo17-12-2"],
-    source: "TODO: Ch 6 — add real provenance",
-  },
-];
+// Emptied because previously placeholder equivalences lacked verified provenance.
+// To add an equivalence, it MUST have a verified, authoritative source.
+const APPROVED_MATERIALS: ProvenanceEquivalence[] = [];
+const APPROVED_STANDARDS: ProvenanceEquivalence[] = [];
 
-const APPROVED_STANDARDS: EquivalenceEntry[] = [
-  {
-    canonical: "ISO 15",
-    approvedEquivalents: ["DIN 625", "ABMA 20"],
-    source: "TODO: Ch 6 — add real provenance",
-  },
-];
+export type EquivalenceResult = 
+  | { status: "match" }
+  | { status: "approved_equivalent"; provenance: ProvenanceEquivalence }
+  | { status: "unknown" };
 
-function findEquivalenceGroup(table: EquivalenceEntry[], value: string): string[] | null {
+function findEquivalenceGroup(table: ProvenanceEquivalence[], value: string): ProvenanceEquivalence | null {
   const normalized = value.trim().toLowerCase();
   for (const entry of table) {
     const all = [entry.canonical, ...entry.approvedEquivalents].map((s) => s.toLowerCase());
     if (all.includes(normalized)) {
-      return [entry.canonical, ...entry.approvedEquivalents];
+      return entry;
     }
   }
-  return null; // unknown — rules must treat this as UNVERIFIED, not auto-pass
+  return null;
 }
 
-export function areMaterialsEquivalent(a: string, b: string): "match" | "provisional_equivalent" | "unknown" {
-  if (a.trim().toLowerCase() === b.trim().toLowerCase()) return "match";
-  const group = findEquivalenceGroup(APPROVED_MATERIALS, a);
-  if (group && group.map((s) => s.toLowerCase()).includes(b.trim().toLowerCase())) {
-    return "provisional_equivalent";
+export function areMaterialsEquivalent(a: string, b: string): EquivalenceResult {
+  if (a.trim().toLowerCase() === b.trim().toLowerCase()) return { status: "match" };
+  const entry = findEquivalenceGroup(APPROVED_MATERIALS, a);
+  if (entry && [entry.canonical, ...entry.approvedEquivalents].map((s) => s.toLowerCase()).includes(b.trim().toLowerCase())) {
+    return { status: "approved_equivalent", provenance: entry };
   }
-  return "unknown";
+  return { status: "unknown" };
 }
 
-export function areStandardsEquivalent(a: string, b: string): "match" | "provisional_equivalent" | "unknown" {
-  if (a.trim().toLowerCase() === b.trim().toLowerCase()) return "match";
-  const group = findEquivalenceGroup(APPROVED_STANDARDS, a);
-  if (group && group.map((s) => s.toLowerCase()).includes(b.trim().toLowerCase())) {
-    return "provisional_equivalent";
+export function areStandardsEquivalent(a: string, b: string): EquivalenceResult {
+  if (a.trim().toLowerCase() === b.trim().toLowerCase()) return { status: "match" };
+  const entry = findEquivalenceGroup(APPROVED_STANDARDS, a);
+  if (entry && [entry.canonical, ...entry.approvedEquivalents].map((s) => s.toLowerCase()).includes(b.trim().toLowerCase())) {
+    return { status: "approved_equivalent", provenance: entry };
   }
-  return "unknown";
+  return { status: "unknown" };
+}
+
+// Exposed for testing
+export function _addTestMaterialEquivalence(entry: ProvenanceEquivalence) {
+  APPROVED_MATERIALS.push(entry);
+}
+export function _addTestStandardEquivalence(entry: ProvenanceEquivalence) {
+  APPROVED_STANDARDS.push(entry);
+}
+export function _clearTestEquivalences() {
+  APPROVED_MATERIALS.length = 0;
+  APPROVED_STANDARDS.length = 0;
 }

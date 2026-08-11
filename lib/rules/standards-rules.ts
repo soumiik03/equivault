@@ -26,29 +26,35 @@ export function evaluateStandardsRules(
     }];
   }
 
-  const hasMatch = origList.some((o) =>
-    replList.some((r) => areStandardsEquivalent(o, r) === "match")
-  );
+  let matchFound = false;
+  let approvedEquivalenceFound = false;
+  let matchReason = "";
 
-  if (hasMatch) {
+  for (const o of origList) {
+    for (const r of replList) {
+      const result = areStandardsEquivalent(o, r);
+      if (result.status === "match") {
+        matchFound = true;
+        matchReason = `At least one standard matches exactly: ${o}.`;
+        break;
+      } else if (result.status === "approved_equivalent") {
+        approvedEquivalenceFound = true;
+        const prov = result.provenance;
+        matchReason = `Approved equivalence: ${o} ↔ ${r}. Source: ${prov.source}.`;
+        if (prov.note) {
+          matchReason += ` Note: ${prov.note}`;
+        }
+        break; // we just need one match/equivalence to pass the rule
+      }
+    }
+    if (matchFound || approvedEquivalenceFound) break;
+  }
+
+  if (matchFound || approvedEquivalenceFound) {
     return [{
       ...base,
       severity: "PASS",
-      reason: `At least one standard matches exactly.`,
-      originalValue: origList,
-      replacementValue: replList,
-    }];
-  }
-
-  const hasProvisional = origList.some((o) =>
-    replList.some((r) => areStandardsEquivalent(o, r) === "provisional_equivalent")
-  );
-
-  if (hasProvisional) {
-    return [{
-      ...base,
-      severity: "WARNING",
-      reason: `Standards have a provisional equivalence. Awaiting authoritative provenance (Ch 6).`,
+      reason: matchReason,
       originalValue: origList,
       replacementValue: replList,
     }];
@@ -56,8 +62,8 @@ export function evaluateStandardsRules(
 
   return [{
     ...base,
-    severity: "WARNING",
-    reason: `No matching or approved-equivalent standards found: ${origList.join(", ")} vs ${replList.join(", ")}.`,
+    severity: "UNVERIFIED",
+    reason: `Equivalence has not been established and requires engineering verification: ${origList.join(", ")} vs ${replList.join(", ")}.`,
     originalValue: origList,
     replacementValue: replList,
   }];
