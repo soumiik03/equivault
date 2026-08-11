@@ -28,16 +28,21 @@ export function evaluateMaterialRules(
 
   const result = areMaterialsEquivalent(origVal, replVal);
 
-  if (result === "match") {
+  if (result.status === "match") {
     return [{ ...base, severity: "PASS", reason: `Material matches exactly: ${origVal}.`, originalValue: origVal, replacementValue: replVal }];
   }
-  if (result === "provisional_equivalent") {
-    return [{ ...base, severity: "WARNING", reason: `Materials have a provisional equivalence: ${origVal} ↔ ${replVal}. Awaiting authoritative provenance (Ch 6).`, originalValue: origVal, replacementValue: replVal }];
+  if (result.status === "approved_equivalent") {
+    const prov = result.provenance;
+    let reason = `Approved equivalence: ${origVal} ↔ ${replVal}. Source: ${prov.source}.`;
+    if (prov.note) {
+      reason += ` Note: ${prov.note}`;
+    }
+    return [{ ...base, severity: "PASS", reason, originalValue: origVal, replacementValue: replVal }];
   }
   return [{
     ...base,
-    severity: "WARNING",
-    reason: `Materials differ and no approved equivalence is on record: ${origVal} → ${replVal}. Needs engineer review.`,
+    severity: "UNVERIFIED", // Changed from WARNING per Chapter 6 spec: "Unknown mapping behavior -> UNVERIFIED"
+    reason: `Equivalence has not been established and requires engineering verification: ${origVal} → ${replVal}.`,
     originalValue: origVal,
     replacementValue: replVal,
   }];
