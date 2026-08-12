@@ -40,6 +40,9 @@ function runTests() {
   run("Temperature: 212 °F -> 100 °C", () => {
     assert.strictEqual(normalizeTemperature("212 °F"), 100);
   });
+  run("Temperature: 248 °F -> 120 °C", () => {
+    assert.strictEqual(normalizeTemperature("248 °F"), 120);
+  });
   run("Temperature: 373.15 K -> 100 °C", () => {
     // using approximate equal for floating point
     const res = normalizeTemperature("373.15 K");
@@ -52,12 +55,21 @@ function runTests() {
   run("Loads: 12500 N -> 12.5 kN", () => {
     assert.strictEqual(normalizeLoadRating("12500 N"), 12.5);
   });
+  run("Loads: 5,050 N -> 5.05 kN", () => {
+    assert.strictEqual(normalizeLoadRating("5,050 N"), 5.05);
+  });
+  run("Loads: 1,970 N -> 1.97 kN", () => {
+    assert.strictEqual(normalizeLoadRating("1,970 N"), 1.97);
+  });
 
   run("Speed: 18000 rpm -> 18000 RPM", () => {
     assert.strictEqual(normalizeSpeed("18000 rpm"), 18000);
   });
   run("Speed: 18000 r/min -> 18000 RPM", () => {
     assert.strictEqual(normalizeSpeed("18000 r/min"), 18000);
+  });
+  run("Speed: 30,000 r/min -> 30000 RPM", () => {
+    assert.strictEqual(normalizeSpeed("30,000 r/min"), 30000);
   });
 
   run("Malformed input -> null", () => {

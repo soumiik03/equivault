@@ -4,10 +4,11 @@ export function parseUnitString(input: string | number | null): { value: number;
   if (typeof input !== "string") return null;
 
   const trimmed = input.trim();
-  const match = trimmed.match(/^([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s*(.*)$/);
+  const match = trimmed.match(/^([-+]?[0-9,]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s*(.*)$/);
   if (!match) return null;
 
-  const value = parseFloat(match[1]);
+  const valueString = match[1].replace(/,/g, "");
+  const value = parseFloat(valueString);
   if (isNaN(value)) return null;
 
   return { value, unit: match[2].trim().toLowerCase() };
