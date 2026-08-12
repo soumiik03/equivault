@@ -23,8 +23,8 @@ export function buildEngineeringDrawerItemsWithEvidence(
 ): EvidenceDrawerItem[] {
   return engineering.map((r) => {
     const fieldKey = RULE_TO_FIELD[r.ruleId];
-    const origField = fieldKey ? (originalSpec[fieldKey] as any) : null;
-    const replField = fieldKey ? (replacementSpec[fieldKey] as any) : null;
+    const origField = fieldKey ? originalSpec[fieldKey] : null;
+    const replField = fieldKey ? replacementSpec[fieldKey] : null;
 
     return {
       id: r.ruleId,
