@@ -3,7 +3,6 @@ import type { ComplianceCheckResult } from "@/lib/compliance/types";
 import type { EvidenceDrawerItem } from "./types";
 import type { BearingSpec } from "@/lib/bearings/types";
 
-// Maps a rule's field back to its BearingSpec key so we can pull evidence
 const RULE_TO_FIELD: Record<string, keyof BearingSpec> = {
   dim_inner_diameter: "innerDiameter",
   dim_outer_diameter: "outerDiameter",

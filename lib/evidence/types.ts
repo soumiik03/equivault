@@ -16,7 +16,7 @@ export interface AggregatedResults {
 }
 
 export interface CriticalReason {
-  source: "engineering"; // compliance never drives the "critical reason" — 7.7 keeps them separate
+  source: "engineering";
   ruleId: string;
   label: string;
   severity: "HARD_FAIL" | "UNVERIFIED";
@@ -24,7 +24,7 @@ export interface CriticalReason {
 }
 
 export interface EvidenceDrawerItem {
-  id: string;              // ruleId or complianceCheckId, for frontend lookup
+  id: string;
   category: "engineering" | "compliance";
   label: string;
   severity: string;
@@ -36,7 +36,7 @@ export interface EvidenceDrawerItem {
 
 export interface EvidenceReport {
   criticalReason: CriticalReason | null;
-  explanation: string;          // LLM-generated readable summary
+  explanation: string;
   drawerItems: EvidenceDrawerItem[];
   generatedAt: string;
 }

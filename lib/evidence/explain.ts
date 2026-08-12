@@ -25,8 +25,6 @@ function factsAsText(aggregated: AggregatedResults, criticalReason: CriticalReas
         original: r.originalValue,
         replacement: r.replacementValue,
       })),
-      // Compliance intentionally omitted from the narrative explanation — 7.7 keeps it
-      // a separate section in the UI, so it shouldn't blend into the engineering summary.
     },
     null,
     2
@@ -63,11 +61,8 @@ export async function generateExplanation(
     if (!hasInventedNumber) {
       return text;
     }
-    // else retry with correction prompt
   }
 
-  // Fallback: if the model still can't stay grounded, don't ship a possibly-hallucinated
-  // sentence — fall back to a deterministic, template-built explanation instead.
   return buildFallbackExplanation(criticalReason);
 }
 

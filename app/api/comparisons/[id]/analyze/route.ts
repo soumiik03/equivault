@@ -67,8 +67,6 @@ export async function POST(
       throw new Error("Both original and replacement specifications are required.");
     }
 
-    // Compatibility is deterministic. Gemini is only used inside Chapter 8's
-    // grounded explanation generator, after these results have been finalized.
     const engineering = evaluateCompatibility(original, replacement);
     const compliance = compareCompliance(original, replacement);
     const evidence = await buildEvidenceReport(engineering, compliance, original, replacement);

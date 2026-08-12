@@ -2,8 +2,8 @@ import type { RuleResult } from "@/lib/rules/types";
 import type { CriticalReason } from "./types";
 
 const CATEGORY_PRIORITY: Record<string, number> = {
-  dimension: 0,   // physical fit — most fundamental
-  performance: 1, // load/speed/temp — safety-critical
+  dimension: 0,
+  performance: 1,
   material: 2,
   standards: 3,
 };
@@ -41,5 +41,5 @@ export function selectCriticalReason(engineering: RuleResult[]): CriticalReason 
     };
   }
 
-  return null; // no critical issue — comparison is clean at the gate level
+  return null;
 }

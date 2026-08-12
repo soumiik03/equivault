@@ -2,12 +2,10 @@ export interface ProvenanceEquivalence {
   canonical: string;
   approvedEquivalents: string[];
   category: "material" | "standards" | "dimension" | "performance";
-  source: string; // Must be a verified, authoritative reference
-  note?: string;  // Caveats, e.g., "Only applies to boundary dimensions"
+  source: string;
+  note?: string;
 }
 
-// Emptied because previously placeholder equivalences lacked verified provenance.
-// To add an equivalence, it MUST have a verified, authoritative source.
 const APPROVED_MATERIALS: ProvenanceEquivalence[] = [];
 const APPROVED_STANDARDS: ProvenanceEquivalence[] = [];
 
@@ -45,7 +43,6 @@ export function areStandardsEquivalent(a: string, b: string): EquivalenceResult 
   return { status: "unknown" };
 }
 
-// Exposed for testing
 export function _addTestMaterialEquivalence(entry: ProvenanceEquivalence) {
   APPROVED_MATERIALS.push(entry);
 }

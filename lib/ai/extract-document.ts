@@ -49,7 +49,6 @@ async function callGemini(
 function parseAndValidate(raw: string): BearingSpec {
   const parsed = JSON.parse(raw);
   
-  // Normalize fields that might be directly null or omitted by Gemini
   const fields = [
     "partNumber", "manufacturer", "bearingType", "innerDiameter", 
     "outerDiameter", "width", "material", "dynamicLoadRating", 
@@ -77,7 +76,6 @@ export async function extractBearingSpec(
 ): Promise<ExtractionResult> {
   let attempts = 0;
 
-  // Attempt 1: Flash-Lite (primary, free-tier optimized)
   attempts++;
   const primaryRaw = await callGemini(
     GEMINI_PRIMARY_MODEL,
@@ -89,10 +87,8 @@ export async function extractBearingSpec(
     const spec = parseAndValidate(primaryRaw);
     return { spec, rawResponse: primaryRaw, attempts };
   } catch {
-    // Primary validation failed — fall back to Flash
   }
 
-  // Attempt 2: Flash (fallback, only on validation failure)
   attempts++;
   const fallbackRaw = await callGemini(
     GEMINI_FALLBACK_MODEL,

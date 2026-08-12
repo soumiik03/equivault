@@ -41,7 +41,7 @@ export function evaluateMaterialRules(
   }
   return [{
     ...base,
-    severity: "UNVERIFIED", // Changed from WARNING per Chapter 6 spec: "Unknown mapping behavior -> UNVERIFIED"
+    severity: "UNVERIFIED",
     reason: `Equivalence has not been established and requires engineering verification: ${origVal} → ${replVal}.`,
     originalValue: origVal,
     replacementValue: replVal,

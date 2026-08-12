@@ -1,27 +1,9 @@
-/**
- * Chapter 1 — Ground-truth fixture validation script.
- *
- * Validates that every JSON fixture in tests/fixtures/bearings/:
- *  1. Conforms to the canonical BearingSpec shape (compile-time via satisfies).
- *  2. Has all 15 MVP fields.
- *  3. Every field has { value, evidence } structure.
- *  4. Non-null values have valid evidence (documentId, page ≥ 1, non-empty text).
- *  5. Null values have null evidence.
- *  6. Evidence documentIds exist in the document catalog.
- *  7. Known dimension values are correct.
- *  8. Undocumented fields follow the null policy.
- *
- * Usage:  npx tsx tests/validate-fixtures.ts
- */
-
 import * as fs from "fs";
 import * as path from "path";
 
-// ── Import canonical types (compile-time proof they exist) ──────────
 import type { Evidence } from "../lib/evidence/types";
 import type { BearingField, BearingSpec } from "../lib/bearings/types";
 
-// Silence unused-variable lint for types we only need for satisfies checks.
 void (undefined as unknown as Evidence);
 void (undefined as unknown as BearingField<unknown>);
 

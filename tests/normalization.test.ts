@@ -26,7 +26,6 @@ function runTests() {
     }
   }
 
-  // --- Units Tests ---
   run("Dimensions: 0.5 in -> 12.7 mm", () => {
     assert.strictEqual(normalizeDimension("0.5 in"), 12.7);
   });
@@ -44,7 +43,6 @@ function runTests() {
     assert.strictEqual(normalizeTemperature("248 °F"), 120);
   });
   run("Temperature: 373.15 K -> 100 °C", () => {
-    // using approximate equal for floating point
     const res = normalizeTemperature("373.15 K");
     assert(res !== null && Math.abs(res - 100) < 0.0001, `Got ${res}`);
   });
@@ -79,7 +77,6 @@ function runTests() {
     assert.strictEqual(normalizeDimension("100 lightyears"), null);
   });
 
-  // --- Materials Tests ---
   run("Material: 52100 mapping", () => {
     assert.strictEqual(normalizeMaterial("52100"), "52100 Chrome Steel");
   });
@@ -92,8 +89,7 @@ function runTests() {
   run("Material: unrelated material not incorrectly mapped", () => {
     assert.strictEqual(normalizeMaterial("Titanium Alloy Ti-6Al-4V"), "Titanium Alloy Ti-6Al-4V");
   });
-  
-  // --- Standards Tests ---
+
   run("Standards: formatting normalization", () => {
     assert.deepStrictEqual(normalizeStandards(["iso    15", "din625"]), ["ISO 15", "DIN 625"]);
   });
@@ -138,7 +134,7 @@ function runTests() {
     const spec = makeSpec({ innerDiameter: 50, outerDiameter: 40 });
     const res = applySanityChecks(spec);
     assert.strictEqual(res.outerDiameter.value, null);
-    assert.strictEqual(res.outerDiameter.evidence?.text, "ev"); // evidence preserved
+    assert.strictEqual(res.outerDiameter.evidence?.text, "ev");
   });
 
   run("Sanity: width <= 0 rejected", () => {

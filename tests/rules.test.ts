@@ -6,7 +6,6 @@ import rawFixture6000 from "./fixtures/bearings/6000.json";
 import rawFixture6208 from "./fixtures/bearings/6208.json";
 import { _addTestMaterialEquivalence, _addTestStandardEquivalence, _clearTestEquivalences } from "@/lib/rules/equivalence-tables";
 
-// We know the fixtures conform to BearingSpec based on validate-fixtures
 const fixture6000 = rawFixture6000 as BearingSpec;
 const fixture6208 = rawFixture6208 as BearingSpec;
 
@@ -181,7 +180,6 @@ describe("compatibility rule engine", () => {
   });
 
   it("19. no unapproved equivalence produces PASS", () => {
-    // Tests that an unregistered equivalence defaults to UNVERIFIED
     const original: BearingSpec = { ...fixture6000, material: { value: "Stainless Steel 316", evidence: null } };
     const replacement: BearingSpec = { ...fixture6000, material: { value: "SS316", evidence: null } };
     const results = evaluateCompatibility(original, replacement);

@@ -11,7 +11,6 @@ export default async function ComparisonPage(props: { params: Promise<{ id: stri
   const params = await props.params;
   const id = params.id;
 
-  // UUID validation to prevent DB crashes if a malformed ID is passed
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) return notFound();
 

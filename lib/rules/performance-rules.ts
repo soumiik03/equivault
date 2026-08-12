@@ -63,7 +63,6 @@ function compareTemperatureRange(
     };
   }
 
-  // Replacement must handle at least as much heat as the original was rated for
   if (replTemp < origTemp) {
     return {
       ...base,

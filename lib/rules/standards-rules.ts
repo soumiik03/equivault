@@ -44,7 +44,7 @@ export function evaluateStandardsRules(
         if (prov.note) {
           matchReason += ` Note: ${prov.note}`;
         }
-        break; // we just need one match/equivalence to pass the rule
+        break;
       }
     }
     if (matchFound || approvedEquivalenceFound) break;

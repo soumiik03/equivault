@@ -1,7 +1,7 @@
 import type { BearingSpec } from "@/lib/bearings/types";
 import type { RuleResult } from "./types";
 
-const FLOAT_EPSILON = 0.01; // mm — float-comparison safety only, not manufacturing tolerance
+const FLOAT_EPSILON = 0.01;
 
 function compareExactDimension(
   ruleId: string,

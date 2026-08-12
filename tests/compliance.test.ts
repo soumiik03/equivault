@@ -127,11 +127,9 @@ describe("compliance engine", () => {
   });
 
   it("12. compliance results remain separate from RuleResult[]", () => {
-    // This is essentially asserted by the fact we import evaluateCompliance from compliance/engine, 
-    // which returns ComplianceCheckResult[] and NOT RuleResult[].
     const spec: BearingSpec = { ...fixture6000 };
     const results = evaluateCompliance(spec);
-    assert.ok(!("tier" in results[0])); // tier exists on RuleResult, not ComplianceCheckResult
+    assert.ok(!("tier" in results[0]));
   });
 
   it("13. original and replacement produce separate compliance results", () => {

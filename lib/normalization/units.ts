@@ -24,7 +24,7 @@ export function normalizeDimension(input: string | number | null): number | null
   if (unit === "m") return value * 1000;
   if (unit === "in" || unit === "inch" || unit === "inches" || unit === '"') return value * 25.4;
 
-  return null; // unsupported unit
+  return null;
 }
 
 export function normalizeTemperature(input: string | number | null): number | null {
@@ -32,11 +32,8 @@ export function normalizeTemperature(input: string | number | null): number | nu
   if (!parsed) return null;
 
   const { value, unit } = parsed;
-  // °c, c
   if (!unit || unit === "c" || unit === "°c" || unit === "deg c") return value;
-  // °f, f
   if (unit === "f" || unit === "°f" || unit === "deg f") return (value - 32) * (5 / 9);
-  // k
   if (unit === "k" || unit === "kelvin") return value - 273.15;
 
   return null;
@@ -63,6 +60,5 @@ export function normalizeSpeed(input: string | number | null): number | null {
     return value;
   }
 
-  // Do NOT blindly convert generic Hz to RPM
   return null;
 }

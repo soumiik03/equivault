@@ -7,10 +7,8 @@ export function normalizeStandards(input: string[] | string | null): string[] | 
   for (const raw of rawArray) {
     if (!raw || typeof raw !== "string") continue;
 
-    // Clean whitespace
     let cleaned = raw.replace(/\s+/g, " ").trim();
 
-    // Standardize prefixes
     cleaned = cleaned.replace(/^ISO\s*(.*)/i, "ISO $1");
     cleaned = cleaned.replace(/^DIN\s*(.*)/i, "DIN $1");
     cleaned = cleaned.replace(/^ANSI\s*(.*)/i, "ANSI $1");

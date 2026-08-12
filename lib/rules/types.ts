@@ -1,6 +1,5 @@
 export type RuleSeverity = "PASS" | "WARNING" | "HARD_FAIL" | "UNVERIFIED";
 
-// Gate rules can force UNSAFE outright (Ch 9). Weighted rules feed the score.
 export type RuleTier = "gate" | "weighted";
 
 export type RuleCategory =
@@ -15,7 +14,7 @@ export interface RuleResult {
   tier: RuleTier;
   category: RuleCategory;
   severity: RuleSeverity;
-  reason: string; // 5.7 — human-readable, always present
+  reason: string;
   originalValue: unknown;
   replacementValue: unknown;
 }
