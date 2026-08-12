@@ -1,6 +1,6 @@
 {
-  "id": "3300fcd7-e962-4956-9c99-5a5fd763b93b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "ed21132d-b2a7-4080-b710-13612f2e4d19",
+  "prevId": "3300fcd7-e962-4956-9c99-5a5fd763b93b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -169,6 +169,12 @@
         "failure_reason": {
           "name": "failure_reason",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "analysis": {
+          "name": "analysis",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },

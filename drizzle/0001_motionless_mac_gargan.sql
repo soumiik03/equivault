@@ -1,0 +1,1 @@
+ALTER TABLE "part_comparisons" ADD COLUMN "analysis" jsonb;

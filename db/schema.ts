@@ -16,6 +16,7 @@ export const partComparisons = pgTable("part_comparisons", {
   id: uuid("id").primaryKey().defaultRandom(),
   status: comparisonStatusEnum("status").notNull().default("UPLOADED"),
   failureReason: text("failure_reason"),
+  analysis: jsonb("analysis"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
