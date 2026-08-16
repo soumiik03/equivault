@@ -51,11 +51,48 @@ export default async function ComparisonPage(props: { params: Promise<{ id: stri
 
   const originalSpec = originalExt?.validatedSpec as ValidatedBearingSpec | undefined;
   const replacementSpec = replacementExt?.validatedSpec as ValidatedBearingSpec | undefined;
-  const analysis = comparison.analysis as {
-    engineering: RuleResult[];
-    compliance: ComparisonComplianceResult;
-    evidence: EvidenceReport;
-  } | null;
+ const analysis = comparison.analysis as {
+  engineering: RuleResult[];
+  compliance: ComparisonComplianceResult;
+  complianceRisk: {
+    original: {
+      risk: "LOW" | "MEDIUM" | "HIGH";
+      verdict: string;
+      reason: string;
+    };
+    replacement: {
+      risk: "LOW" | "MEDIUM" | "HIGH";
+      verdict: string;
+      reason: string;
+    };
+  };
+  riskScore: {
+    score: number | null;
+    earnedWeight: number;
+    applicableWeight: number;
+    breakdown: {
+      category: string;
+      weight: number;
+      status: "PASS" | "WARNING" | "UNVERIFIED";
+      contribution: number;
+      excludedFromDenominator: boolean;
+    }[];
+  };
+  finalVerdict: {
+    verdict: "COMPATIBLE" | "CONDITIONAL" | "UNSAFE" | "UNVERIFIED";
+    reason: string;
+    hardFails: RuleResult[];
+    unverifiedRules: RuleResult[];
+    weightedIssues: RuleResult[];
+    complianceRisk: "LOW" | "MEDIUM" | "HIGH";
+    consequences: {
+      type: string;
+      reason: string;
+      requiredAction: string;
+    }[];
+  };
+  evidence: EvidenceReport;
+} | null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderValue = (val: any) => {
@@ -138,11 +175,169 @@ export default async function ComparisonPage(props: { params: Promise<{ id: stri
 
       {analysis && (
         <>
+       {analysis?.finalVerdict && analysis?.riskScore && (
+  <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+    Risk Summary
+  </h2>
+
+  <div className="mt-4">
+    <p
+      className={`text-2xl font-bold ${
+        analysis.finalVerdict.verdict === "UNSAFE"
+          ? "text-red-700"
+          : analysis.finalVerdict.verdict === "CONDITIONAL"
+            ? "text-amber-700"
+            : analysis.finalVerdict.verdict === "UNVERIFIED"
+              ? "text-amber-700"
+              : "text-green-700"
+      }`}
+    >
+      {analysis.finalVerdict.verdict}
+    </p>
+
+    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      {analysis.finalVerdict.reason}
+    </p>
+  </div>
+
+  <div className="mt-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
+    <h3 className="font-semibold">Weighted Risk Score</h3>
+
+    {analysis.riskScore.score === null ? (
+      <p className="mt-2 text-sm text-amber-700">
+        Insufficient verified information to calculate a score.
+      </p>
+    ) : (
+      <>
+        <p className="mt-2 text-2xl font-bold">
+          {analysis.riskScore.score}
+        </p>
+
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {analysis.riskScore.earnedWeight} earned /{" "}
+          {analysis.riskScore.applicableWeight} applicable weight
+        </p>
+
+        <p className="mt-2 text-xs text-gray-500">
+          Formula: earned applicable weight ÷ applicable weight × 100.
+          Unverified rules are excluded from the denominator.
+        </p>
+      </>
+    )}
+  </div>
+
+  <div className="mt-6">
+    <h3 className="font-semibold">Score Breakdown</h3>
+
+    <div className="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
+      {analysis.riskScore.breakdown.map((item) => (
+        <div
+          key={item.category}
+          className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="font-medium capitalize">
+              {item.category}
+            </p>
+
+            <p className="text-xs text-gray-500">
+              Weight: {item.weight} · Status: {item.status}
+            </p>
+          </div>
+
+          <span
+            className={`font-semibold ${
+              item.excludedFromDenominator
+                ? "text-amber-700"
+                : item.status === "WARNING"
+                  ? "text-amber-700"
+                  : "text-green-700"
+            }`}
+          >
+            {item.excludedFromDenominator
+              ? "EXCLUDED"
+              : `+${item.contribution}`}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {analysis.finalVerdict.weightedIssues.length > 0 && (
+    <div className="mt-6">
+      <h3 className="font-semibold">Unverified Weighted Attributes</h3>
+
+      <div className="mt-3 space-y-2">
+        {analysis.finalVerdict.weightedIssues.map((rule) => (
+          <div
+            key={rule.ruleId}
+            className="rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-950/20"
+          >
+            <p className="font-medium text-amber-800 dark:text-amber-300">
+              {rule.label}
+            </p>
+
+            <p className="mt-1 text-gray-700 dark:text-gray-300">
+              {rule.reason}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {analysis.finalVerdict.consequences.length > 0 && (
+    <div className="mt-6">
+      <h3 className="font-semibold">Consequences</h3>
+
+      <div className="mt-3 space-y-3">
+        {analysis.finalVerdict.consequences.map(
+          (consequence, index) => (
+            <div
+              key={`${consequence.type}-${index}`}
+              className="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
+            >
+              <p className="font-medium">
+                {consequence.type.replaceAll("_", " ")}
+              </p>
+
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {consequence.reason}
+              </p>
+
+              <p className="mt-2 text-sm font-medium">
+                Required action:{" "}
+                <span className="font-normal">
+                  {consequence.requiredAction}
+                </span>
+              </p>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  )}
+</section>)}
           <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Engineering Compatibility</h2>
-            <p className={`mt-2 text-lg font-bold ${analysis.engineering.some((r) => r.severity === "HARD_FAIL") ? "text-red-700" : analysis.engineering.some((r) => r.severity === "UNVERIFIED") ? "text-amber-700" : "text-green-700"}`}>
-              {analysis.engineering.some((r) => r.severity === "HARD_FAIL") ? "NOT COMPATIBLE" : analysis.engineering.some((r) => r.severity === "UNVERIFIED") ? "UNVERIFIED" : "COMPATIBLE"}
-            </p>
+           <p className={`mt-2 text-lg font-bold ${
+  analysis.engineering.some((r) => r.severity === "HARD_FAIL")
+    ? "text-red-700"
+    : analysis.engineering.some(
+        (r) => r.tier === "gate" && r.severity === "UNVERIFIED"
+      )
+      ? "text-amber-700"
+      : "text-green-700"
+}`}>
+  {analysis.engineering.some((r) => r.severity === "HARD_FAIL")
+    ? "NOT COMPATIBLE"
+    : analysis.engineering.some(
+        (r) => r.tier === "gate" && r.severity === "UNVERIFIED"
+      )
+      ? "UNVERIFIED"
+      : "COMPATIBLE"}
+</p>
             <div className="mt-4 divide-y divide-gray-200 dark:divide-gray-800">
               {analysis.engineering.map((rule) => (
                 <div key={rule.ruleId} className="grid gap-1 py-3 sm:grid-cols-[1fr_auto]">

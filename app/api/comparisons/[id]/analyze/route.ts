@@ -6,7 +6,9 @@ import type { BearingSpec } from "@/lib/bearings/types";
 import { evaluateCompatibility } from "@/lib/rules/engine";
 import { compareCompliance } from "@/lib/compliance/engine";
 import { buildEvidenceReport } from "@/lib/evidence/engine";
-
+import { evaluateComplianceRisk } from "@/lib/risk";
+import { evaluateFinalVerdict } from "@/lib/risk/verdict";
+import { calculateRiskScore } from "@/lib/risk/score";
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -69,9 +71,20 @@ export async function POST(
 
     const engineering = evaluateCompatibility(original, replacement);
     const compliance = compareCompliance(original, replacement);
+    const riskScore = calculateRiskScore(
+  engineering,
+  compliance
+);
     const evidence = await buildEvidenceReport(engineering, compliance, original, replacement);
-    const analysis = { engineering, compliance, evidence };
-
+    const complianceRisk = evaluateComplianceRisk(compliance);
+    const finalVerdict = evaluateFinalVerdict(
+  engineering,
+  complianceRisk,
+  riskScore
+);
+    const analysis = { engineering, compliance,riskScore, evidence ,complianceRisk, finalVerdict };
+  
+   
     await db
       .update(partComparisons)
       .set({ status: "COMPLETED", analysis, updatedAt: new Date(), failureReason: null })
