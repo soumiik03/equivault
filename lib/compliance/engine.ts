@@ -15,7 +15,7 @@ function checkRoHS(spec: BearingSpec): ComplianceCheckResult {
       evidence,
     };
   }
-
+ 
   if (normalized.some((c) => c.includes("rohs"))) {
     return {
       ...base,
