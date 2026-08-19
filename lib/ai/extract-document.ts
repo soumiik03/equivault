@@ -76,19 +76,21 @@ export async function extractBearingSpec(
 ): Promise<ExtractionResult> {
   let attempts = 0;
 
+  // Attempt 1: Primary model — catch both API errors and validation failures
   attempts++;
-  const primaryRaw = await callGemini(
-    GEMINI_PRIMARY_MODEL,
-    fileBuffer,
-    mimeType
-  );
-
   try {
+    const primaryRaw = await callGemini(
+      GEMINI_PRIMARY_MODEL,
+      fileBuffer,
+      mimeType
+    );
     const spec = parseAndValidate(primaryRaw);
     return { spec, rawResponse: primaryRaw, attempts };
   } catch {
+    // Primary model failed (API error or validation error) — fall through to fallback
   }
 
+  // Attempt 2: Fallback model — errors here propagate to caller
   attempts++;
   const fallbackRaw = await callGemini(
     GEMINI_FALLBACK_MODEL,

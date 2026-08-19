@@ -9,6 +9,9 @@ import { buildEvidenceReport } from "@/lib/evidence/engine";
 import { evaluateComplianceRisk } from "@/lib/risk";
 import { evaluateFinalVerdict } from "@/lib/risk/verdict";
 import { calculateRiskScore } from "@/lib/risk/score";
+
+export const maxDuration = 60;
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

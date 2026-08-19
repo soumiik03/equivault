@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { documents, extractions } from "@/db/schema";
+import { documents, extractions, partComparisons } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { downloadDocumentBuffer } from "@/lib/storage/supabase";
 import { extractBearingSpec } from "@/lib/ai/extract-document";
+
+export const maxDuration = 60;
 
 export async function POST(
   req: NextRequest,
@@ -24,16 +26,20 @@ export async function POST(
       );
     }
 
-    const existing = await db
-      .select({ id: extractions.id })
+    // Idempotency: return existing extraction instead of rejecting with 409
+    const [existing] = await db
+      .select()
       .from(extractions)
       .where(eq(extractions.documentId, documentId));
 
-    if (existing.length > 0) {
-      return NextResponse.json(
-        { error: "Extraction already exists for this document" },
-        { status: 409 }
-      );
+    if (existing) {
+      return NextResponse.json({
+        extractionId: existing.id,
+        documentId,
+        partRole: doc.partRole,
+        spec: existing.validatedSpec,
+        attempts: existing.attempts,
+      });
     }
 
     const buffer = await downloadDocumentBuffer(doc.storagePath);
@@ -61,6 +67,28 @@ export async function POST(
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Extraction failed";
+
+    // Mark the parent comparison as FAILED so it doesn't stay stuck at UPLOADED
+    try {
+      const [doc] = await db
+        .select({ comparisonId: documents.comparisonId })
+        .from(documents)
+        .where(eq(documents.id, documentId));
+
+      if (doc) {
+        await db
+          .update(partComparisons)
+          .set({
+            status: "FAILED",
+            failureReason: `Extraction failed: ${message}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(partComparisons.id, doc.comparisonId));
+      }
+    } catch {
+      // Best-effort status update; don't mask the original error
+    }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
