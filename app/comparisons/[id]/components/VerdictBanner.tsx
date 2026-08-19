@@ -123,7 +123,7 @@ export function VerdictBanner({
                 {riskScore.earnedWeight} / {riskScore.applicableWeight} applicable weight
               </span>
               <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">
-                UNVERIFIED RULES EXCLUDED
+                UNVERIFIED RULES EXCLUDED • HARD FAILS OVERRIDE SCORE
               </span>
             </div>
           )}

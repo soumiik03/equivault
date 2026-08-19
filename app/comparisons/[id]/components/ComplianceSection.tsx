@@ -29,10 +29,17 @@ export function ComplianceSection({
         </span>
       );
     }
-    if (status === "HARD_FAIL" || status === "MISSING") {
+    if (status === "HARD_FAIL") {
       return (
         <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-pink-400 bg-pink-950/80 px-2 py-0.5 border border-pink-700/60 rounded-sm uppercase">
-          <XCircle className="h-3 w-3 shrink-0" /> FAIL / MISSING
+          <XCircle className="h-3 w-3 shrink-0" /> FAIL
+        </span>
+      );
+    }
+    if (status === "MISSING") {
+      return (
+        <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-pink-400 bg-pink-950/80 px-2 py-0.5 border border-pink-700/60 rounded-sm uppercase">
+          <XCircle className="h-3 w-3 shrink-0" /> MISSING
         </span>
       );
     }
